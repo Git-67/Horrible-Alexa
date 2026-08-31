@@ -8,6 +8,7 @@ import playsound3
 import pyperclip as pc
 from queue import Queue as q
 import screen_brightness_control as sbc
+import sys
 import tempfile
 import threading
 import time as t
@@ -109,9 +110,9 @@ ydl_opts = {
     'outtmpl': '%(id)s.mp3',
     "js_runtimes": {
         "deno": {
-            "path": r"C:/Users/HP/.deno/bin/deno.exe"
+            "path": sys.argv[1]
         }
-    },
+    },  
     "extractor_args": {
         "youtube": {
             "player_client": ["default", "web_embedded"]
