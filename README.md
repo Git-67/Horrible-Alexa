@@ -4,7 +4,7 @@ Python: 3.14
 ## Create a Cookie File
 Install "cookies.txt" Firefox extension and then open the extension whilst on your Youtube Music. 
 Press copy on current site cookies. Add a new file titled "yummy-youtube-cookies.txt" in this repo, 
-inside with your pasted cookies. Run the python code with `py cool.py`.
+inside with your pasted cookies.
 
 ## Dependencies
 Install Deno [READ HERE](#deno-linking) and ffmpeg
@@ -16,10 +16,14 @@ python3 cool.py
 ```
 ### Windows
 Make sure you have deno installed on your computer. Locate your deno.exe file in your computer, copy it's 
-path, open your Windows Powershell and run `py cool.py **insert-path**`.
+path, open your Windows Powershell and run `py cool.py **insert-cookie-path** **insert-deno-path**`.
 ### Linux
 ```Bash
 python3 -m venv alexasugoi
 cd alexasugoi && source bin/activate
 git clone https://github.com/Git-67/Horrible-Alexa.git && cd Horrible-Alexa
 ```
+To run the python code, use `py cool.py **insert-cookie-path** **insert-deno-path**`.
+### Default Paths
+Cookie Path: "yummy_youtube_cookies.txt"
+Deno Path: "C:\Users\HP\.deno\bin\deno.exe"

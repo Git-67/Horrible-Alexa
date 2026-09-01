@@ -1,14 +1,15 @@
+import os
+import sys
+
 import asyncio as sync
 import edge_tts as e_tts
 import keyboard as kb
 import mouse as m
-import os
 from ollama import chat
 import playsound3
 import pyperclip as pc
 from queue import Queue as q
 import screen_brightness_control as sbc
-import sys
 import tempfile
 import threading
 import time as t
@@ -20,6 +21,11 @@ from yt_dlp import YoutubeDL
 import whisper
 import sounddevice as sd
 import numpy as np
+import torch
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+whisper_model = whisper.load_model("medium", device=device)
+
 
 #import anthropic as ant
 #with open (".env", "r") as file:
@@ -27,7 +33,6 @@ import numpy as np
 #
 #client = ant.Anthropic(api_key=api_key)
 
-whisper_model = whisper.load_model("medium") # "tiny" is faster, "small"/"medium" more accurate
 conversation_history = []
 music_queue = q()
 current_sound = None
@@ -54,7 +59,8 @@ def new_message(content):
         ],
         options={
             "temperature": 0.3
-        }
+        },
+        keep_alive=-1
     )
 
     assistant_reply = response["message"]["content"]
@@ -96,26 +102,27 @@ def listen(samplerate=16000):
         audio=audio,
         language=None,
         task='transcribe',
-        fp16=False
+        fp16=(device == "cuda")
     )
-    
+
     text = result["text"].strip()
     print(f"User: {text}")
     return text
 
 ydl_opts = {
-    'cookiefile': "yummy_youtube_cookies.txt",
+    'cookiefile': sys.argv[1] if len(sys.argv) > 1 else "yummy_youtube_cookies.txt",
     'format': 'bestaudio',
     'embed-thumbnail': True,
     'outtmpl': '%(id)s.mp3',
-    "js_runtimes": {
-        "deno": {
-            "path": sys.argv[1]
+    'js_runtimes': {
+        'deno': {
+            'path': sys.argv[2] if len(sys.argv) > 2 else r"C:\Users\HP\.deno\bin\deno.exe",
         }
-    },  
+    },
+    'remote_components': ['ejs:github'],
     "extractor_args": {
         "youtube": {
-            "player_client": ["default", "web_embedded"]
+            "player_client": ["web_embedded"]
         }
     }
 }
@@ -127,13 +134,15 @@ def get_yt_dict(song):
         if search_results[i]['duration'].count(':') > 1:
             continue
         id = search_results[i]['id']
+        title = search_results[i]['title']
         break
-    return id
+    return id, title
 
 def ffmpeg_convert(id, bitrate=128):
+    sync.run(speak("Downloading mp3"))
     with YoutubeDL(ydl_opts) as YDL:
         YDL.download('https://music.youtube.com/watch?v=' + id)
-    sync.run(speak("Conerting mp3 to mkv"))
+    sync.run(speak("Converting mp3 to mkv"))
     filename = id + '.mp3'
     ffmpeg.input(filename).audio.filter('volume', 0.1).output(
         f"{id}.mkv",
@@ -147,6 +156,7 @@ def music_player():
     global current_sound
     while True:
         music_id = music_queue.get()
+        sync.run(speak(f"Now playing {music_id}"))
         current_sound = playsound3.playsound(
             f"{music_id}.mkv",
             block=False
@@ -197,11 +207,12 @@ class Commands:
 
     def download_and_mkv(reply):
         song = reply.split("/command play", 1)[1].strip()
-        id = get_yt_dict(song)
+        id, title = get_yt_dict(song)
         ffmpeg_convert(id)
-        music_queue.put(id)
         reply = reply.replace(reply.split("/command play", 1)[1].strip(),"")
         reply = reply.replace("/command play","")
+        if (not music_queue.empty()) and (current_sound or current_sound.is_alive()):
+            reply += f"{title} has been added to the queue."
         return reply, id
 
     def music_quit(reply):
@@ -265,8 +276,6 @@ threading.Thread(
     daemon=True
 ).start()
 
-generated_text = "hello world!"
-
 while True:
     print("\nHold esc to talk...")
     kb.wait("esc")
@@ -278,4 +287,3 @@ while True:
     sync.run(speak(speech))
     if music_id:
         music_queue.put(music_id)
-
