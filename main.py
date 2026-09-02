@@ -3,6 +3,7 @@ import sys
 
 import asyncio as sync
 import edge_tts as e_tts
+from datetime import datetime, timedelta
 import keyboard as kb
 import mouse as m
 from ollama import chat
@@ -22,6 +23,13 @@ import numpy as np
 import sounddevice as sd
 import torch
 import whisper
+
+# Variable Initialization
+music_queue = q()
+current_sound = None
+generated_text = None
+alarm_time = []
+conversation_history = []
 
 # List of Commands
 class Commands:
@@ -83,8 +91,22 @@ class Commands:
         return reply
 
     def set_alarm(reply):
-        alarm_time.append(reply.split("/command alarm", 1)[1].strip())
-        reply = reply.replace(f"/command alarm {alarm_time[-1]}", "")
+        args = reply.split("/command alarm", 1)[1].strip()
+        mode, rest = args.split(" ", 1)
+        rest = rest.strip()
+        parts = rest.split(" ", 1)
+        value = parts[0]
+        reason = parts[1].strip() if len(parts) > 1 else ""
+
+        if mode == "in":
+            minutes = int(value)
+            target = datetime.now() + timedelta(minutes=minutes)
+            alarm_clock = target.strftime("%H:%M")
+        else:  # mode == "at"
+            alarm_clock = value
+
+        alarm_time.append([alarm_clock, reason])
+        reply = reply.replace(f"/command alarm {args}", "")
         return reply, alarm_time
 
 # Records audio from mic until user releases esc, transcribes using whisper, returns transcribed text
@@ -251,8 +273,21 @@ def command_parser(reply):
         speech = Commands.time(speech)
     if "/command alarm" in speech:
         speech, alarm_time = Commands.set_alarm(speech)
-    print(f"Sugoi: {speech.strip()}")
+    print(f"Pluto: {speech.strip()}")
     return speech, music_id
+
+# Checks if any alarms are due and triggers the alarm if applicable, runs on a separate thread
+def alarm_check():
+    while True:
+        t.sleep(0.1)
+        now = t.strftime("%H:%M")
+        for alarm in list(alarm_time):  
+            if alarm[0] == now:
+                reason_clause = f" about {alarm[1]}" if alarm[1] else ""
+                # Ensure that speech synthesis is not overlapping by using a loc
+                with speech_lock:
+                    sync.run(speak(new_message(f"The user's alarm is going off{reason_clause}, remind him and tell him the current time is {t.strftime('%I:%M %p')}.")))
+                alarm_time.remove(alarm)
 
 # Starts async for edge_tts to convert reply to speech and plays it, detects Chinese characters and switches to a Chinese voice if applicable
 async def speak(text):
@@ -288,9 +323,18 @@ ydl_opts = {
     }
 }
 
+# Initialize a lock for speech synthesis to prevent overlapping speech
+speech_lock = threading.Lock()
+
 # Start music_player thread
 threading.Thread(
     target=music_player,
+    daemon=True
+).start()
+
+# Start alarm_check thread
+threading.Thread(
+    target=alarm_check,
     daemon=True
 ).start()
 
@@ -302,40 +346,26 @@ with open ('system-prompt.txt', 'r') as file:
 device = "cuda" if torch.cuda.is_available() else "cpu"; print("Loading Whisper...")
 whisper_model = whisper.load_model("large-v3-turbo", device=device); print("Whisper loaded.")
 
-# Variable Initialization
-music_queue = q()
-current_sound = None
-generated_text = None
-alarm_time = []
-conversation_history = []
-
 # Start greeting
 print("Sending greeting to Ollama...")
 greeting = new_message(f"The user just entered the room. Please greet them. The current time is {t.strftime('%I:%M %p')}.")
-print(f"Sugoi: {greeting.strip()}")
+print(f"Pluto: {greeting.strip()}")
 sync.run(speak(greeting))
 
 # Main Loop
 while True:
     print("\nHold esc to talk...")
+    kb.wait("esc")
 
-    # Wait for user to hold esc to talk AND checks for alarms
-    while not kb.is_pressed("esc"):
-        if t.strftime("%H:%M") in alarm_time:
-            sync.run(speak(new_message(f"The user's alarm is going off, remind him and tell him the current time is {t.strftime('%I:%M %p')}.")))
-            alarm_time.remove(t.strftime("%H:%M"))
-        t.sleep(0.01)
-
-    # Reruns loop if content is empty, otherwise sends content to Ollama and gets a reply
     content = listen()
     if not content:
         continue
 
-    # Generates reply, parses commands, speaks filtered reply with edge_tts, queues music if applicable
-    reply = new_message(content)
-    speech, music_id = command_parser(reply)
-    sync.run(speak(speech))
+    # Ensure that speech synthesis is not overlapping by using a lock
+    with speech_lock:
+        reply = new_message(content + f"(The current time is {t.strftime('%I:%M %p')})")
+        speech, music_id = command_parser(reply)
+        sync.run(speak(speech))
 
-    # Queues music if a music_id was returned from the command parser
     if music_id:
         music_queue.put(music_id)
