@@ -1,5 +1,6 @@
 ## Versions
 Python: 3.14
+Ollama: Qwen2.5:7b
 
 ## Create a Cookie File
 Install "cookies.txt" Firefox extension and then open the extension whilst on your Youtube Music. 
