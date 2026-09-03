@@ -1,9 +1,10 @@
 import os
-import sys
 
+import argparse as ap
 import asyncio as sync
 import edge_tts as e_tts
 from datetime import datetime, timedelta
+import json
 import keyboard as kb
 import mouse as m
 from ollama import chat
@@ -31,7 +32,22 @@ generated_text = None
 alarm_time = []
 conversation_history = []
 
-# List of Commands
+# CLI Arguments & JSON Initialization Config Handling 
+with open('config.json', 'r') as f:
+    config = json.load(f)
+parser = ap.ArgumentParser()
+parser.add_argument("-c", "--cookiefile", type=str, default=config.get("cookiefile", "yummy_youtube_cookies.txt"))
+parser.add_argument("-d", "--deno", type=str, default=config.get("deno_path", r"C:\Users\HP\.deno\bin\deno.exe"))
+parser.add_argument("-s", "--save", action="store_true", help="Save the provided -c/-d values as the new defaults in config.json")
+args = parser.parse_args()
+if args.save:
+    config["cookiefile"] = args.cookiefile
+    config["deno_path"] = args.deno
+    with open('config.json', 'w') as f:
+        json.dump(config, f, indent=2)
+    print("Saved new defaults to config.json")
+
+# Class of Commands
 class Commands:
 
     def brightness_up(reply):
@@ -65,12 +81,12 @@ class Commands:
 
         if not confirm_song(title):
             sync.run(speak("Okay, cancelling that."))
-            return reply, None
+            return "", None
 
         ffmpeg_convert(id)
         if (not music_queue.empty()) and current_sound and current_sound.is_alive():
             reply += f"{title} has been added to the queue."
-        return reply, id
+        return reply, (id, title)
 
     def music_quit(reply):
         stop_music()
@@ -79,8 +95,11 @@ class Commands:
 
     def write(reply):
         global generated_text
-        generated_text = reply.split("/command write ")[1]
-        reply = reply.replace(f"/command write {generated_text}", "")
+        parts = reply.split("/command write", 1)
+        if len(parts) < 2:
+            return reply
+        generated_text = parts[1].strip()
+        reply = reply.replace(f"/command write{parts[1]}", "").strip()
         pc.copy(generated_text)
         sync.run(speak("Generated Text is Copied to Clipboard"))
         return reply
@@ -148,7 +167,7 @@ def new_message(content):
     })
     conversation_history = conversation_history[-50:]   # keeps memory of the last 50 messages to avoid context overflow
     response = chat(
-        model='qwen2.5:7b',
+        model='qwen3:14b',
         messages=[
             {
                 "role": "system",
@@ -170,7 +189,6 @@ def new_message(content):
 
 # Confirms the song with the user and parses confirmation check to is_affirmative
 def confirm_song(title):
-    """Speak the found title back to the user and wait for a push-to-talk yes/no."""
     sync.run(speak(f"I found {title}. Hold escape and say yes to confirm, or no to cancel."))
     print("Hold esc to confirm song...")
     while not kb.is_pressed("esc"):
@@ -180,7 +198,6 @@ def confirm_song(title):
 
 # Confirms if the user said yes or no, returns True for yes and False for no
 def is_affirmative(text):
-    """Very simple yes/no interpretation of a spoken confirmation."""
     text = text.lower()
     negative_words = ["no", "nope", "nah", "wrong", "cancel", "don't", "dont"]
     affirmative_words = ["yes", "yeah", "yep", "yup", "correct", "right", "sure", "confirm", "play it"]
@@ -222,8 +239,8 @@ def ffmpeg_convert(id, bitrate=192):
 def music_player():
     global current_sound
     while True:
-        music_id = music_queue.get()
-        sync.run(speak(f"Now playing {music_id}"))
+        music_id, title = music_queue.get()
+        sync.run(speak(f"Now playing {title}"))
         current_sound = playsound3.playsound(
             f"{music_id}.mkv",
             block=False
@@ -252,7 +269,7 @@ def stop_music():
 # Parses commands by Ollama and executes them to the respective class functions, returns the modified reply and music_id if applicable
 def command_parser(reply):
     global alarm_time
-    music_id = None
+    music_item = None
     speech = reply
         
     if "/command brightness up" in speech:
@@ -264,7 +281,7 @@ def command_parser(reply):
     if "/command volume down" in speech:
         speech = Commands.volume_down(speech)
     if "/command play" in speech:
-        speech, music_id = Commands.download_and_mkv(speech)
+        speech, music_item = Commands.download_and_mkv(speech) # music_item is a tuple of (id, title) for the music player to use
     if "/command stop-music" in speech:
         speech = Commands.music_quit(speech)
     if "/command write" in speech:
@@ -274,7 +291,7 @@ def command_parser(reply):
     if "/command alarm" in speech:
         speech, alarm_time = Commands.set_alarm(speech)
     print(f"Pluto: {speech.strip()}")
-    return speech, music_id
+    return speech, music_item
 
 # Checks if any alarms are due and triggers the alarm if applicable, runs on a separate thread
 def alarm_check():
@@ -306,13 +323,13 @@ async def speak(text):
 # Options for youtube-dl and sys.argv for cookiefile and deno path, defaults to "yummy_youtube_cookies.txt" and "C:\Users\HP\.deno\bin\deno.exe" if not provided
 # Also runs deno on js_runtimes to avoid the "deno not found" error when using youtube-dl
 ydl_opts = {
-    'cookiefile': sys.argv[1] if len(sys.argv) > 1 else "yummy_youtube_cookies.txt",
+    'cookiefile': args.cookiefile,
     'format': 'bestaudio',
     'embed-thumbnail': True,
     'outtmpl': '%(id)s.mp3',
     'js_runtimes': {
         'deno': {
-            'path': sys.argv[2] if len(sys.argv) > 2 else r"C:\Users\HP\.deno\bin\deno.exe",
+            'path': args.deno,
         }
     },
     'remote_components': ['ejs:github'],
@@ -325,27 +342,23 @@ ydl_opts = {
 
 # Initialize a lock for speech synthesis to prevent overlapping speech
 speech_lock = threading.Lock()
-
 # Start music_player thread
 threading.Thread(
     target=music_player,
     daemon=True
 ).start()
-
 # Start alarm_check thread
 threading.Thread(
     target=alarm_check,
     daemon=True
 ).start()
 
-# Load system prompt from file
-with open ('system-prompt.txt', 'r') as file:
+# Load system prompt for Qwen from file
+with open('system-prompt.txt', 'r') as file:
     system_prompt = file.read()
-
 # Load Whisper model
 device = "cuda" if torch.cuda.is_available() else "cpu"; print("Loading Whisper...")
 whisper_model = whisper.load_model("large-v3-turbo", device=device); print("Whisper loaded.")
-
 # Start greeting
 print("Sending greeting to Ollama...")
 greeting = new_message(f"The user just entered the room. Please greet them. The current time is {t.strftime('%I:%M %p')}.")
@@ -356,16 +369,15 @@ sync.run(speak(greeting))
 while True:
     print("\nHold esc to talk...")
     kb.wait("esc")
-
+    playsound3.playsound("audio/mic-recording.wav", block=False)
     content = listen()
     if not content:
+        playsound3.playsound("audio/mic-no-detect.wav", block=False)
         continue
-
     # Ensure that speech synthesis is not overlapping by using a lock
     with speech_lock:
         reply = new_message(content + f"(The current time is {t.strftime('%I:%M %p')})")
         speech, music_id = command_parser(reply)
         sync.run(speak(speech))
-
     if music_id:
         music_queue.put(music_id)
