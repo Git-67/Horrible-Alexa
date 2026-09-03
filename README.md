@@ -1,9 +1,9 @@
-# Horrible Alexa **WIP**
+# (WIP) Horrible Alexa
 Quite literally what the name says, but homemade by a student. It can adjust your screen's brightness and device volume, play and queue music to your liking, talk with you, and help you write the essay your teacher gave you as homework! (please don't, it's for comedic effect). The future is now!
 
 ## Versions
 - Python: 3.14 (recommended)
-- Ollama: v0.6.6+ (click [here](https://github.com/ollama/ollama/releases) for version info)
+- Ollama: v0.6.6+ (click [HERE](https://github.com/ollama/ollama/releases) for version info)
 
 ## Create a Cookie File
 Install the **cookies.txt** Firefox extension, then open the extension while on YouTube Music. Press Copy on Current Site Cookies. Create `yummy_youtube_cookies.txt` locally in the project directory and paste your exported YouTube Music cookies into it. Do not commit this file to Git or share it publicly, as it contains authentication/session data.
