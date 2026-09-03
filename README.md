@@ -26,7 +26,7 @@ pip install -r requirements.txt
 ollama pull qwen3:14b
 ```
 > Unsure on how to navigate the powershell? Click [HERE](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-commands) to find out more.
-Run the following command to save your cookie and Deno paths and to run the program:
+- Run the following command to save your cookie and Deno paths and to run the program:
 ```powershell
 py main.py -c "<insert-cookie-path>" -d "<insert-deno-path>" -s
 ```
