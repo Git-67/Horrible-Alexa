@@ -36,13 +36,26 @@ python3 main.py
 ollama pull qwen3:14b
 ```
 
-### Default File Paths
+## Default File Paths
 Cookie Path: "yummy_youtube_cookies.txt"\
 Deno Path: "C:\Users\HP\.deno\bin\deno.exe"\
 > These paths are located in config.json
 
-### Available CLI Arguments
+## Available CLI Arguments
 Modify Cookie File Path: `-c **insert-cookie-path**` or `--cookiefile **insert-cookie-path**`\
 Modify Deno Path: `-d **insert-deno-path**` or `--deno **insert-deno-path**`\
 Saving Configurations: `-s` or `--save`\
 Example Usage:`py main.py -c **insert-cookie-path** -d **insert-deno-path** -s`
+
+## Specs
+Here are the documentations on the specifications of your device to run this program\
+### Recommended
+GPU VRAM: 16GB\
+System RAM: 32GB\
+CPU: 6+ cores\
+SSD: 30GB free
+### Minimum
+GPU VRAM: 12GB\
+System RAM: 16GB\
+CPU: 4+ cores\
+SSD: 20GB free
