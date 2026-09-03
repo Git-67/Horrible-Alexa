@@ -11,7 +11,7 @@ Install Deno [HERE](https://docs.deno.com/runtime/getting_started/installation/)
 A python virtual environment is recommended
 
 ### Windows
-Here is how to create & activate a virtual environment before installing requirements.txt\
+Here is how to create & activate a virtual environment before installing requirements.txt
 ```Bash
 cd alexa-shenanigans
 python -m venv .alexa-venv
@@ -19,15 +19,14 @@ python -m venv .alexa-venv
 ```
 > cd into the file path of alexa-shenanigans beforehand, you can use cd .. to go back one directory and ls to list current directory's files click [HERE](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-commands) to find out more.
 
-Next, make sure you have deno installed on your computer. Locate your deno.exe file in your computer, copy it's path, open your Windows Powershell and run `py main.py -c **insert-cookie-path** -d **insert-deno-path** -s`, afterwards you can just run `py main.py` unless you'd like to modify file paths.
-
 ### Linux
 ```Bash
 python3 -m venv alexa-shenanigans
 cd alexa-shenanigans && source bin/activate
 git clone https://github.com/Git-67/Horrible-Alexa.git && cd Horrible-Alexa
 ```
-To run the python code, use `py main.py -c **insert-cookie-path** -d **insert-deno-path** -s`. afterwards you can just run `py main.py` to execute the code unless you'd like to modify file paths.
+
+Next, make sure you have deno installed on your computer. Locate your deno.exe file in your computer, copy it's path, open your Windows Powershell and run `py main.py -c **insert-cookie-path** -d **insert-deno-path** -s`, afterwards you can just run the program with `py main.py` unless you'd like to modify file paths.
 
 ### Installing dependencies
 ```Bash
@@ -48,7 +47,7 @@ Saving Configurations: `-s` or `--save`\
 Example Usage:`py main.py -c **insert-cookie-path** -d **insert-deno-path** -s`
 
 ## Specs
-Here are the documentations on the specifications of your device to run this program\
+Here are the documentations on the specifications of your device to run this program
 ### Recommended
 GPU VRAM: 16GB\
 System RAM: 32GB\
