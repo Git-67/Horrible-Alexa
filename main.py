@@ -2,7 +2,7 @@ import os
 
 import argparse as ap
 import asyncio as sync
-import edge_tts as e_tts
+from supertonic import TTS
 from datetime import datetime, timedelta
 import json
 import keyboard as kb
@@ -167,7 +167,7 @@ def new_message(content):
     })
     conversation_history = conversation_history[-50:]   # keeps memory of the last 50 messages to avoid context overflow
     response = chat(
-        model='qwen3:14b',
+        model='qwen3.5:9b', # change back to 3:14b
         messages=[
             {
                 "role": "system",
@@ -306,19 +306,16 @@ def alarm_check():
                     sync.run(speak(new_message(f"The user's alarm is going off{reason_clause}, remind him and tell him the current time is {t.strftime('%I:%M %p')}.")))
                 alarm_time.remove(alarm)
 
-# Starts async for edge_tts to convert reply to speech and plays it, detects Chinese characters and switches to a Chinese voice if applicable
+# Starts async for supertonic 3 to convert reply to speech and plays it
 async def speak(text):
-    voice = "en-IE-EmilyNeural"
-    if any('\u4e00' <= char <= '\u9fff' for char in text):  # Detect Chinese characters
-        voice = "zh-CN-YunxiNeural"
-    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as file:
+    with tempfile.NamedTemporaryFile(suffix=".mp3") as file:
         filename = file.name
     try:
-        tts = e_tts.Communicate(text, voice, rate="+10%", pitch="-2Hz", volume="-60%")
-        await tts.save(filename)
+        wav, duration = tts.synthesize(text, voice_style=style, lang="en")
+        tts.save_audio(wav, filename)
         playsound3.playsound(filename)
     finally:
-        os.remove(filename)
+        file.close()
 
 # Options for youtube-dl and sys.argv for cookiefile and deno path, defaults to "yummy_youtube_cookies.txt" and "C:\Users\HP\.deno\bin\deno.exe" if not provided
 # Also runs deno on js_runtimes to avoid the "deno not found" error when using youtube-dl
@@ -352,6 +349,10 @@ threading.Thread(
     target=alarm_check,
     daemon=True
 ).start()
+
+# Initialize TTS
+tts = TTS(auto_download=True)
+style = tts.get_voice_style(voice_name="F1")
 
 # Load system prompt for Qwen from file
 with open('system-prompt.txt', 'r') as file:
