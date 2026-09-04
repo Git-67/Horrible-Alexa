@@ -167,7 +167,7 @@ def new_message(content):
     })
     conversation_history = conversation_history[-50:]   # keeps memory of the last 50 messages to avoid context overflow
     response = chat(
-        model='qwen3.5:9b', # change back to 3:14b
+        model='qwen3:14b',
         messages=[
             {
                 "role": "system",
