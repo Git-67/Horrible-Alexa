@@ -1,5 +1,5 @@
 # (WIP) Horrible Alexa
-Quite literally what the name says, but homemade by a student. It can adjust your screen's brightness and device volume, play and queue music to your liking, talk with you, and help you write the essay your teacher gave you as homework! (please don't, it's for comedic effect). The future is now!
+Quite literally what the name says, but homemade by a student. It can adjust your screen's brightness and device volume, play and queue music to your liking, talk with you, check the time and set alarms for you, and help you write the essay your teacher gave you as homework! (please don't, it's for comedic effect). The future is now!
 
 > Concurrently, It can run only run in the **English** language, we are working on implementing more languages along the way.
 

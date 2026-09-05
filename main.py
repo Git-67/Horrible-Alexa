@@ -352,7 +352,7 @@ threading.Thread(
 
 # Initialize TTS
 tts = TTS(auto_download=True)
-style = tts.get_voice_style(voice_name="F1")
+style = tts.get_voice_style(voice_name="F5")
 
 # Load system prompt for Qwen from file
 with open('system-prompt.txt', 'r') as file:
