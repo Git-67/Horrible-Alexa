@@ -6,6 +6,7 @@ from supertonic import TTS
 from datetime import datetime, timedelta
 import json
 import keyboard as kb
+import logging
 import mouse as m
 from ollama import chat
 import playsound3
@@ -24,6 +25,10 @@ import numpy as np
 import sounddevice as sd
 import torch
 import whisper
+import supertonic.config as _st_config
+_st_config.DEFAULT_ONNX_PROVIDERS = ["CUDAExecutionProvider", "CPUExecutionProvider"]
+
+from supertonic import TTS
 
 # Variable Initialization
 music_queue = q()
@@ -99,13 +104,15 @@ class Commands:
         if len(parts) < 2:
             return reply
         generated_text = parts[1].strip()
+        logger.debug(f"Copying to clipboard: {generated_text!r}")
         reply = reply.replace(f"/command write{parts[1]}", "").strip()
         pc.copy(generated_text)
-        sync.run(speak("Generated Text is Copied to Clipboard"))
+        logger.debug(f"Clipboard now contains: {pc.paste()!r}")
         return reply
 
     def time(reply):
         current_time = t.strftime("%I:%M %p") # Format time as HH:MM AM/PM
+        logger.info(f"Current time retrieved: {current_time!r}")
         reply = reply.replace(reply, f"The current time is {current_time}.")
         return reply
 
@@ -148,9 +155,10 @@ def listen(samplerate=16000):
         return ""
     audio = np.concatenate(frames, axis=0)
     audio = np.squeeze(audio)
+    logging.info(f"Audio max amplitude: {np.abs(audio).max():.4f}, mean: {np.abs(audio).mean():.4f}")
     result = whisper_model.transcribe(
         audio=audio,
-        language=None,
+        language='en',
         task='transcribe',
         fp16=(device == "cuda")
     )
@@ -167,7 +175,7 @@ def new_message(content):
     })
     conversation_history = conversation_history[-50:]   # keeps memory of the last 50 messages to avoid context overflow
     response = chat(
-        model='qwen3:14b',
+        model='qwen2.5:7b',
         messages=[
             {
                 "role": "system",
@@ -290,7 +298,7 @@ def command_parser(reply):
         speech = Commands.time(speech)
     if "/command alarm" in speech:
         speech, alarm_time = Commands.set_alarm(speech)
-    print(f"Pluto: {speech.strip()}")
+    print(f"\nPluto: {speech.strip()}\n")
     return speech, music_item
 
 # Checks if any alarms are due and triggers the alarm if applicable, runs on a separate thread
@@ -350,20 +358,34 @@ threading.Thread(
     daemon=True
 ).start()
 
+# Initialize logging
+logging.basicConfig(
+    level=logging.DEBUG,  # set to logging.INFO to hide debug messages later
+    format="%(asctime)s [%(levelname)s] %(funcName)s: %(message)s",
+    datefmt="%H:%M:%S"
+)
+logger = logging.getLogger("pluto")
+
 # Initialize TTS
 tts = TTS(auto_download=True)
 style = tts.get_voice_style(voice_name="F5")
 
+# Overall Initialization
 # Load system prompt for Qwen from file
 with open('system-prompt.txt', 'r') as file:
     system_prompt = file.read()
 # Load Whisper model
-device = "cuda" if torch.cuda.is_available() else "cpu"; print("Loading Whisper...")
-whisper_model = whisper.load_model("large-v3-turbo", device=device); print("Whisper loaded.")
+if torch.cuda.is_available():
+    device = "cuda"
+else:
+    device = "cpu"
+logging.info(f"Initializing Whisper with {device!r}")
+whisper_model = whisper.load_model("large-v3-turbo", device=device)
+logging.info("Whisper model fully loaded")
 # Start greeting
-print("Sending greeting to Ollama...")
+logging.info("Sending Greeting to Ollama")
 greeting = new_message(f"The user just entered the room. Please greet them. The current time is {t.strftime('%I:%M %p')}.")
-print(f"Pluto: {greeting.strip()}")
+print(f"\nPluto: {greeting.strip()}\n")
 sync.run(speak(greeting))
 
 # Main Loop
@@ -377,6 +399,7 @@ while True:
         continue
     # Ensure that speech synthesis is not overlapping by using a lock
     with speech_lock:
+        logging.info(f"Sending user input to Ollama: {content!r}")
         reply = new_message(content + f"(The current time is {t.strftime('%I:%M %p')})")
         speech, music_id = command_parser(reply)
         sync.run(speak(speech))

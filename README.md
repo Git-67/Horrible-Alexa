@@ -1,7 +1,8 @@
 # (WIP) Horrible Alexa
 Quite literally what the name says, but homemade by a student. It can adjust your screen's brightness and device volume, play and queue music to your liking, talk with you, check the time and set alarms for you, and help you write the essay your teacher gave you as homework! (please don't, it's for comedic effect). The future is now!
 
-> Concurrently, It can run only run in the **English** language, we are working on implementing more languages along the way.
+> This project can only use a Nvidia GPU as it detects for cuda, it will automatically switch to run on your CPU if it fails to detect one.
+> Concurrently, it can only run in the **English** language, we are working on implementing more languages along the way.
 
 ## Versions
 - Python: 3.14 (recommended)
@@ -9,8 +10,9 @@ Quite literally what the name says, but homemade by a student. It can adjust you
 
 ## Create a Cookie File
 Install the **cookies.txt** Firefox extension, then open the extension while on YouTube Music. Press Copy on Current Site Cookies. Create `yummy_youtube_cookies.txt` locally in the project directory and paste your exported YouTube Music cookies into it. Do not commit this file to Git or share it publicly, as it contains authentication/session data.
+
 >`.gitignore` already excludes `yummy_youtube_cookies.txt`. If you change the cookie filename, remember to update `.gitignore` as well.
-> You may use other methods to get your cookies, this is just the one that worked flawlessly for me.
+> You may use other methods to get your cookies too, this is just the one that worked flawlessly for me.
 
 ## Dependencies
 Install Ollama [HERE](https://ollama.com/download)\
@@ -23,16 +25,20 @@ Here is how to create & activate a virtual environment before installing require
 git clone https://github.com/Git-67/Horrible-Alexa.git
 cd Horrible-Alexa
 py -m venv .alexa-venv
-.alexa-venv\Scripts\Activate
+.alexa-venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-ollama pull qwen3:14b
+ollama pull qwen2.5:7b
 ```
+
 > Unsure on how to navigate the powershell? Click [HERE](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-commands) to find out more.
 
 Run the following command to save your cookie and Deno paths and to run the program:
 ```powershell
 py main.py -c "<insert-cookie-path>" -d "<insert-deno-path>" -s
 ```
+
+> Whisper and Supertonic auto-download models on your first run, do not worry and let it keep running, it's just a one time installation.
+
 For subsequent instances you can simply use:
 ```powershell
 py main.py
@@ -44,21 +50,24 @@ cd Horrible-Alexa
 python3 -m venv .alexa-venv
 source .alexa-venv/bin/activate
 pip install -r requirements.txt
-ollama pull qwen3:14b
+ollama pull qwen2.5:7b
 ```
 
 Run the following command to save your cookie and Deno paths and to run the program:
 ```bash
 python3 main.py -c "<insert-cookie-path>" -d "<insert-deno-path>" -s
 ```
+> Whisper and Supertonic auto-download models on your first run, do not worry and let it keep running, it's just a one time installation.
+
 For subsequent instances you can simply use:
 ```bash
 python3 main.py
 ```
 
 ## Default File Paths
-Cookie Path: `yummy_youtube_cookies.txt`\
-Deno Path: `C:\Users\<USERNAME>\.deno\bin\deno.exe`\
+- Cookie Path: `yummy_youtube_cookies.txt`
+- Deno Path: `C:\Users\<USERNAME>\.deno\bin\deno.exe`
+
 > The default Deno path shown above is for Windows. Linux users should set their Deno path using the `-d` argument. These paths are located in config.json.
 
 ## Available CLI Arguments
@@ -69,13 +78,14 @@ Deno Path: `C:\Users\<USERNAME>\.deno\bin\deno.exe`\
 ## Specs
 Here are the recommended and minimum hardware specifications for running this program.
 ### Recommended
-- GPU VRAM: 16GB
+- GPU VRAM: 12GB
 - System RAM: 32GB
 - CPU: 6+ cores
-- SSD: 30GB free
+- SSD: 15GB free
 ### Minimum
-- GPU VRAM: 12GB
+- GPU VRAM: 8GB
 - System RAM: 16GB
 - CPU: 4+ cores
-- SSD: 20GB free
-> Lots of VRAM is required due to Qwen3:14b, but trust me, it's worth it.
+- SSD: 10GB free
+
+> A decent amount of VRAM is required since Ollama, Whisper, and Supertonic's TTS engine all share the GPU concurrently, this recommendation accounts for all three running at once, not just the LLM.
