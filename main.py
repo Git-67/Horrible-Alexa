@@ -114,12 +114,6 @@ class Commands:
         logger.debug(f"Clipboard now contains: {pc.paste()!r}")
         return reply
 
-    def time(reply):
-        current_time = t.strftime("%I:%M %p") # Format time as HH:MM AM/PM
-        logger.info(f"Current time retrieved: {current_time!r}")
-        reply = reply.replace(reply, f"The current time is {current_time}.")
-        return reply
-
     def set_alarm(reply):
         args = reply.split("/command alarm", 1)[1].strip()
         mode, rest = args.split(" ", 1)
@@ -177,7 +171,7 @@ def new_message(content):
         "role": "user", 
         "content": content
     })
-    conversation_history = conversation_history[-50:]   # keeps memory of the last 50 messages to avoid context overflow
+    conversation_history = conversation_history[-250:]   # keeps memory of the last 250 messages to remove old information
     response = chat(
         model='qwen2.5:7b',
         messages=[
@@ -203,8 +197,8 @@ def new_message(content):
 def confirm_song(title):
     sync.run(speak(f"I found {title}. Hold escape and say yes to confirm, or no to cancel."))
     print("Hold esc to confirm song...")
-    while not kb.is_pressed("esc"):
-        t.sleep(0.01)
+    kb.wait("esc")
+    playsound3.playsound("audio/mic-recording.wav", block=False)
     response = listen()
     return is_affirmative(response)
 
@@ -302,8 +296,6 @@ def command_parser(reply):
         speech = Commands.music_quit(speech)
     if "/command write" in speech:
         speech = Commands.write(speech)
-    if "/command time" in speech:
-        speech = Commands.time(speech)
     if "/command alarm" in speech:
         speech, alarm_time = Commands.set_alarm(speech)
     print(f"\nPluto: {speech.strip()}\n")
