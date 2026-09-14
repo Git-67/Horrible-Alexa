@@ -36,6 +36,7 @@ current_sound = None
 generated_text = None
 alarm_time = []
 conversation_history = []
+song_cache = []
 
 # CLI Arguments & JSON Initialization Config Handling 
 with open('config.json', 'r') as f:
@@ -85,10 +86,13 @@ class Commands:
         id, title = get_yt_dict(song)
 
         if not confirm_song(title):
-            sync.run(speak("Okay, cancelling that."))
+            sync.run(speak(f"Cancelling {title}."))
             return "", None
 
-        ffmpeg_convert(id)
+        if (id, title) in song_cache:
+            logger.debug(f"{title} already cached, skipping re-download")
+        else:
+            ffmpeg_convert(id)
         if (not music_queue.empty()) and current_sound and current_sound.is_alive():
             reply += f"{title} has been added to the queue."
         return reply, (id, title)
@@ -219,8 +223,8 @@ def is_affirmative(text):
 # Retrieves the youtube id and title of the song, returns them as a tuple (id, title)
 def get_yt_dict(song):
     sync.run(speak("Retrieving Song ID"))
-    search_results = YoutubeSearch(song, max_results=10).to_dict()
-    for i in range(10):
+    search_results = YoutubeSearch(song, max_results=20).to_dict()
+    for i in range(20):
         if search_results[i]['duration'].count(':') > 1:
             continue
         id = search_results[i]['id']
@@ -248,6 +252,7 @@ def music_player():
     global current_sound
     while True:
         music_id, title = music_queue.get()
+        song_cache.append((music_id, title))
         sync.run(speak(f"Now playing {title}"))
         current_sound = playsound3.playsound(
             f"{music_id}.mkv",
@@ -257,7 +262,10 @@ def music_player():
             t.sleep(0.1)
         current_sound = None
         try:
-            os.remove(f"{music_id}.mkv")
+            if len(song_cache) > 10:
+                old_id, old_title = song_cache.pop(0)
+                os.remove(f"{old_id[0][0]}.mkv")
+                logging.info(f"Removed {old_title[0][1]} from cache")
         except FileNotFoundError:
             pass
         music_queue.task_done()
@@ -390,7 +398,7 @@ sync.run(speak(greeting))
 
 # Main Loop
 while True:
-    print("\nHold esc to talk...")
+    print("\nHold esc to talk...\n")
     kb.wait("esc")
     playsound3.playsound("audio/mic-recording.wav", block=False)
     content = listen()
@@ -402,6 +410,7 @@ while True:
         logging.info(f"Sending user input to Ollama: {content!r}")
         reply = new_message(content + f"(The current time is {t.strftime('%I:%M %p')})")
         speech, music_id = command_parser(reply)
-        sync.run(speak(speech))
+        if speech:
+            sync.run(speak(speech))
     if music_id:
         music_queue.put(music_id)
