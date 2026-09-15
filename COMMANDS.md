@@ -7,7 +7,7 @@ Every command must be used at the end of Pluto's reply, meaning it must also be 
 ## What are some commands Pluto has?
 Pluto has several commands, here's the list of them and their arguments:
 | Command | Arguments | Description | Status |
-| --- | --- | --- | --- |
+| --- | --- | --- | :---: |
 | `/command brightness` | `up/down` | Changes brightness by 25% | ✔️ |
 | `/command volume` | `up/down` | Changes volume by 25% | ✔️ |
 | `/command play` | `<song-title>` | Plays or queues a song | ✔️ |
