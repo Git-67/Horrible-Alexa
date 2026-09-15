@@ -36,13 +36,15 @@ Run the following command to save your cookie and Deno paths and to run the prog
 ```powershell
 py main.py -c "<insert-cookie-path>" -d "<insert-deno-path>" -s
 ```
-
 > Whisper and Supertonic auto-download models on your first run, do not worry and let it keep running, it's just a one time installation.
 
 For subsequent instances you can simply use:
 ```powershell
 py main.py
 ```
+
+> If you have created a venv and installed all dependencies there, you need to go to your venv by using `.aleva-venv\Scripts\Activate.ps1` before you can run the program
+
 ### Linux
 ```bash
 git clone https://github.com/Git-67/Horrible-Alexa.git
@@ -63,6 +65,8 @@ For subsequent instances you can simply use:
 ```bash
 python3 main.py
 ```
+
+> If you have created a venv and installed all dependencies there, you need to go to your venv by using `.aleva-venv\Scripts\Activate.ps1` before you can run the program
 
 ## Default File Paths
 - Cookie Path: `yummy_youtube_cookies.txt`
