@@ -68,6 +68,9 @@ python3 main.py
 
 > If you have created a venv and installed all dependencies there, you need to go to your venv by using `.aleva-venv\Scripts\Activate.ps1` before you can run the program
 
+## Getting Logs
+To get the logs of the program, run `Get-Content .\pluto.log -Wait` whilst in the venv and it'll open up a seperate terminal showing only the logs, which is useful for debugging.
+
 ## Default File Paths
 - Cookie Path: `yummy_youtube_cookies.txt`
 - Deno Path: `C:\Users\<USERNAME>\.deno\bin\deno.exe`

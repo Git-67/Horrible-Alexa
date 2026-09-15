@@ -148,7 +148,7 @@ class Commands:
     def shutdown(reply):
         global shutdown
         reply = reply.replace(f"/command quit", "")
-        logging.debug(f"Initializing Shutdown at {t.strftime("%H:%M:%S")!r}")
+        logger.debug(f"Initializing Shutdown at {t.strftime('%H:%M:%S')!r}")
         shutdown = True
         return reply
 
@@ -385,9 +385,13 @@ threading.Thread(
 
 # Initialize logging
 logging.basicConfig(
-    level=logging.DEBUG,  # set to logging.INFO to hide debug messages later
+    level=logging.DEBUG,
     format="%(asctime)s [%(levelname)s] %(funcName)s: %(message)s",
-    datefmt="%H:%M:%S"
+    datefmt="%H:%M:%S",
+    handlers=[
+        logging.FileHandler("pluto.log", encoding="utf-8"),
+        logging.StreamHandler()
+    ]
 )
 logger = logging.getLogger("pluto")
 
