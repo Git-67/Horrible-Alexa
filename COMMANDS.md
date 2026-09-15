@@ -1,10 +1,12 @@
 # Commands for Pluto
 ## What are commands?
-Commands are hard-coded strings the code in `main.py` detects for which will then act out as said by Pluto. There are concurrently 9 different commands, each may have their own arguments with Pluto can use.
+Commands are hard-coded strings, in which the Python code in `main.py` detects for, which will then act out as prompted by Pluto. There are concurrently 9 different commands, each may have their own arguments with Pluto can use.
 > We are coming up with **more** commands Pluto can use, which can make it even more dynamic and useful. It may look overwhelming and you may think it's feature bloat. Usually, multiple commands come together to make one feature so it's actually pretty decent.
-## What's the structure of the commands?
+## What's the Structure of Commands?
 Every command must be used at the end of Pluto's reply, meaning it must also be seperate from the actual reply. Every command also starts with a `/command` as a baseline for checking whether there is a command Pluto wants to execute, as not every reply necessarily needs a command.
-## What are some commands Pluto has?
+
+After `/command`, it chooses from the lists of available commands below, followed up by argument(s) if there is a need for any, executing the exact action the user wants Pluto to do.
+## Published Commands
 Pluto has several commands, here's the list of them and their arguments:
 | Command | Arguments | Description | Status |
 | --- | --- | --- | :---: |
@@ -17,7 +19,7 @@ Pluto has several commands, here's the list of them and their arguments:
 | `/command alarm in` | `<minutes> <purpose>` | Sets an alarm after a duration | ✔️ |
 | `/command alarm-remove` | `<HH:MM>` | Removes an alarm | ✔️ |
 | `/command quit` | None | Exits Pluto | ✔️ |
-## Planned / In Progress commands
+## Planned / In Progress Commands
 As this is a WIP, more and more commands will be added in the future, here's some of our concurrent ideas:
 | Command | Arguments | Description | Status |
 | --- | --- | --- | :---: |
