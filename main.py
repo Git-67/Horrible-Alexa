@@ -13,6 +13,7 @@ import playsound3
 import pyperclip as pc
 from queue import Queue as q
 import screen_brightness_control as sbc
+import sys
 import tempfile
 import threading
 import time as t
@@ -34,6 +35,7 @@ from supertonic import TTS
 music_queue = q()
 current_sound = None
 generated_text = None
+shutdown = False
 alarm_time = []
 conversation_history = []
 song_cache = []
@@ -130,8 +132,25 @@ class Commands:
             alarm_clock = value
 
         alarm_time.append([alarm_clock, reason])
+        logging.debug(f"alarm list: {alarm_time}")
         reply = reply.replace(f"/command alarm {args}", "")
         return reply, alarm_time
+
+    def remove_alarm(reply):
+        args = reply.split("/command alarm-remove", 1)[1].strip()
+        checked_alarms = [element for element in alarm_time if element[0] == args]
+        for i in range(len(checked_alarms)):
+            alarm_time.remove(checked_alarms[i])
+        logging.debug(f"alarm list: {alarm_time}")
+        reply = reply.replace(f"/command alarm-remove {args}", "")
+        return reply
+
+    def shutdown(reply):
+        global shutdown
+        reply = reply.replace(f"/command quit", "")
+        logging.debug(f"Initializing Shutdown at {t.strftime("%H:%M:%S")!r}")
+        shutdown = True
+        return reply
 
 # Records audio from mic until user releases esc, transcribes using whisper, returns transcribed text
 def listen(samplerate=16000):
@@ -143,7 +162,8 @@ def listen(samplerate=16000):
         samplerate=samplerate, 
         channels=1, 
         dtype='float32', 
-        callback=callback
+        callback=callback,
+        device=None # choose device default
     )
     with stream:
         while kb.is_pressed("esc"):
@@ -297,7 +317,12 @@ def command_parser(reply):
     if "/command write" in speech:
         speech = Commands.write(speech)
     if "/command alarm" in speech:
-        speech, alarm_time = Commands.set_alarm(speech)
+        if "/command alarm-remove" in speech:
+            speech = Commands.remove_alarm(speech)
+        else:
+            speech, alarm_time = Commands.set_alarm(speech)
+    if "/command quit" in speech:
+        speech = Commands.shutdown(speech)
     print(f"\nPluto: {speech.strip()}\n")
     return speech, music_item
 
@@ -379,6 +404,7 @@ if torch.cuda.is_available():
     device = "cuda"
 else:
     device = "cpu"
+playsound3.playsound("audio/startup-sound.mp3", block=False)
 logging.info(f"Initializing Whisper with {device!r}")
 whisper_model = whisper.load_model("large-v3-turbo", device=device)
 logging.info("Whisper model fully loaded")
@@ -404,5 +430,9 @@ while True:
         speech, music_id = command_parser(reply)
         if speech:
             sync.run(speak(speech))
+        if shutdown:
+            playsound3.playsound("audio/shutdown-sound.mp3")
+            logging.debug("Shutting Down")
+            sys.exit(0)
     if music_id:
         music_queue.put(music_id)
