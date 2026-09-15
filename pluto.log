@@ -1,0 +1,72 @@
+23:52:16 [DEBUG] get_cache_dir: Using cache directory: C:\Users\HP\.cache\supertonic3
+23:52:16 [INFO] load_model: Loading model from C:\Users\HP\.cache\supertonic3
+23:52:16 [DEBUG] load_configs: Loaded config from C:\Users\HP\.cache\supertonic3\onnx\tts.json
+23:52:16 [INFO] load_onnx_modules: Using ONNX providers: ['CPUExecutionProvider']
+23:52:16 [INFO] load_onnx_modules: ONNX Runtime config: intra_threads=auto, inter_threads=auto
+23:52:16 [INFO] load_onnx_modules: Loading ONNX models with providers: ['CPUExecutionProvider']
+23:52:16 [DEBUG] _load_onnx: Loading ONNX model: C:\Users\HP\.cache\supertonic3\onnx\duration_predictor.onnx
+23:52:16 [DEBUG] _load_onnx: Loading ONNX model: C:\Users\HP\.cache\supertonic3\onnx\text_encoder.onnx
+23:52:16 [DEBUG] _load_onnx: Loading ONNX model: C:\Users\HP\.cache\supertonic3\onnx\vector_estimator.onnx
+23:52:17 [DEBUG] _load_onnx: Loading ONNX model: C:\Users\HP\.cache\supertonic3\onnx\vocoder.onnx
+23:52:17 [INFO] load_onnx_modules: Successfully loaded all ONNX models
+23:52:17 [DEBUG] load_text_processor: Loading text processor from C:\Users\HP\.cache\supertonic3\onnx\unicode_indexer.json
+23:52:17 [INFO] _load_indexer: Loaded unicode indexer from C:\Users\HP\.cache\supertonic3\onnx\unicode_indexer.json (65536 entries)
+23:52:17 [INFO] load_model: Model loaded successfully
+23:52:17 [INFO] __init__: Initialized Supertonic engine (sample_rate=44100Hz, latent_dim=24)
+23:52:17 [DEBUG] list_available_voice_style_paths: Found 10 voice styles in C:\Users\HP\.cache\supertonic3\voice_styles
+23:52:17 [DEBUG] load_voice_style_from_json_file: Loading voice style from C:\Users\HP\.cache\supertonic3\voice_styles\F5.json
+23:52:17 [INFO] <module>: Initializing Whisper with 'cuda'
+23:52:22 [INFO] <module>: Whisper model fully loaded
+23:52:22 [INFO] <module>: Sending Greeting to Ollama
+23:52:22 [DEBUG] trace: connect_tcp.started host='127.0.0.1' port=11434 local_address=None timeout=None socket_options=None
+23:52:22 [DEBUG] trace: connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000025FCD0E8D70>
+23:52:22 [DEBUG] trace: send_request_headers.started request=<Request [b'POST']>
+23:52:22 [DEBUG] trace: send_request_headers.complete
+23:52:22 [DEBUG] trace: send_request_body.started request=<Request [b'POST']>
+23:52:22 [DEBUG] trace: send_request_body.complete
+23:52:22 [DEBUG] trace: receive_response_headers.started request=<Request [b'POST']>
+23:52:22 [DEBUG] trace: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Date', b'Tue, 15 Sep 2026 15:52:22 GMT'), (b'Content-Length', b'392')])
+23:52:22 [INFO] _send_single_request: HTTP Request: POST http://127.0.0.1:11434/api/chat "HTTP/1.1 200 OK"
+23:52:22 [DEBUG] trace: receive_response_body.started request=<Request [b'POST']>
+23:52:22 [DEBUG] trace: receive_response_body.complete
+23:52:22 [DEBUG] trace: response_closed.started
+23:52:22 [DEBUG] trace: response_closed.complete
+23:52:22 [DEBUG] __init__: Using proactor: IocpProactor
+23:52:22 [DEBUG] synthesize: Processing chunk 1/1
+23:52:30 [DEBUG] get_cache_dir: Using cache directory: C:\Users\HP\.cache\supertonic3
+23:52:30 [INFO] load_model: Loading model from C:\Users\HP\.cache\supertonic3
+23:52:30 [DEBUG] load_configs: Loaded config from C:\Users\HP\.cache\supertonic3\onnx\tts.json
+23:52:30 [INFO] load_onnx_modules: Using ONNX providers: ['CPUExecutionProvider']
+23:52:30 [INFO] load_onnx_modules: ONNX Runtime config: intra_threads=auto, inter_threads=auto
+23:52:30 [INFO] load_onnx_modules: Loading ONNX models with providers: ['CPUExecutionProvider']
+23:52:30 [DEBUG] _load_onnx: Loading ONNX model: C:\Users\HP\.cache\supertonic3\onnx\duration_predictor.onnx
+23:52:30 [DEBUG] _load_onnx: Loading ONNX model: C:\Users\HP\.cache\supertonic3\onnx\text_encoder.onnx
+23:52:31 [DEBUG] _load_onnx: Loading ONNX model: C:\Users\HP\.cache\supertonic3\onnx\vector_estimator.onnx
+23:52:32 [DEBUG] _load_onnx: Loading ONNX model: C:\Users\HP\.cache\supertonic3\onnx\vocoder.onnx
+23:52:32 [INFO] load_onnx_modules: Successfully loaded all ONNX models
+23:52:32 [DEBUG] load_text_processor: Loading text processor from C:\Users\HP\.cache\supertonic3\onnx\unicode_indexer.json
+23:52:32 [INFO] _load_indexer: Loaded unicode indexer from C:\Users\HP\.cache\supertonic3\onnx\unicode_indexer.json (65536 entries)
+23:52:32 [INFO] load_model: Model loaded successfully
+23:52:32 [INFO] __init__: Initialized Supertonic engine (sample_rate=44100Hz, latent_dim=24)
+23:52:32 [DEBUG] list_available_voice_style_paths: Found 10 voice styles in C:\Users\HP\.cache\supertonic3\voice_styles
+23:52:32 [DEBUG] load_voice_style_from_json_file: Loading voice style from C:\Users\HP\.cache\supertonic3\voice_styles\F5.json
+23:52:32 [INFO] <module>: Initializing Whisper with 'cuda'
+23:52:36 [INFO] <module>: Whisper model fully loaded
+23:52:36 [INFO] <module>: Sending Greeting to Ollama
+23:52:37 [DEBUG] trace: connect_tcp.started host='127.0.0.1' port=11434 local_address=None timeout=None socket_options=None
+23:52:37 [DEBUG] trace: connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000002AB85838D70>
+23:52:37 [DEBUG] trace: send_request_headers.started request=<Request [b'POST']>
+23:52:37 [DEBUG] trace: send_request_headers.complete
+23:52:37 [DEBUG] trace: send_request_body.started request=<Request [b'POST']>
+23:52:37 [DEBUG] trace: send_request_body.complete
+23:52:37 [DEBUG] trace: receive_response_headers.started request=<Request [b'POST']>
+23:52:37 [DEBUG] trace: receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Date', b'Tue, 15 Sep 2026 15:52:37 GMT'), (b'Content-Length', b'391')])
+23:52:37 [INFO] _send_single_request: HTTP Request: POST http://127.0.0.1:11434/api/chat "HTTP/1.1 200 OK"
+23:52:37 [DEBUG] trace: receive_response_body.started request=<Request [b'POST']>
+23:52:37 [DEBUG] trace: receive_response_body.complete
+23:52:37 [DEBUG] trace: response_closed.started
+23:52:37 [DEBUG] trace: response_closed.complete
+23:52:37 [DEBUG] __init__: Using proactor: IocpProactor
+23:52:37 [DEBUG] synthesize: Processing chunk 1/1
+23:52:40 [INFO] save_audio: Saving audio to C:\Users\HP\AppData\Local\Temp\tmp2g62nr6y.mp3
+23:52:40 [INFO] save_audio: Audio saved successfully

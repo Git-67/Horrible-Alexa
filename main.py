@@ -388,10 +388,6 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s [%(levelname)s] %(funcName)s: %(message)s",
     datefmt="%H:%M:%S",
-    handlers=[
-        logging.FileHandler("pluto.log", encoding="utf-8"),
-        logging.StreamHandler()
-    ]
 )
 logger = logging.getLogger("pluto")
 
