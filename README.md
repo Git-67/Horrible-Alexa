@@ -78,14 +78,12 @@ python3 main.py
 ## Specs
 Here are the recommended and minimum hardware specifications for running this program.
 ### Recommended
-- GPU VRAM: 12GB
-- System RAM: 32GB
-- CPU: 6+ cores
-- SSD: 15GB free
+| GPU VRAM | System RAM | CPU | SSD |
+| --- | --- | --- | --- |
+| 12GB | 32GB | 6+ Cores | 15GB Free |
 ### Minimum
-- GPU VRAM: 8GB
-- System RAM: 16GB
-- CPU: 4+ cores
-- SSD: 10GB free
+| GPU VRAM | System RAM | CPU | SSD |
+| --- | --- | --- | --- |
+| 8GB | 16GB | 4+ Cores | 10GB Free |
 
 > A decent amount of VRAM is required since Ollama, Whisper, and Supertonic's TTS engine all share the GPU concurrently, this recommendation accounts for all three running at once, not just the LLM.
