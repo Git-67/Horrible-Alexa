@@ -12,6 +12,7 @@ from ollama import chat
 import playsound3
 import pyperclip as pc
 from queue import Queue as q
+import random as ran
 import screen_brightness_control as sbc
 import sys
 import tempfile
@@ -39,6 +40,9 @@ shutdown = False
 alarm_time = []
 conversation_history = []
 song_cache = []
+zen_thread = None
+zen_running = threading.Event()
+current_zen = None  # tracks the currently playing zen sound handle
 
 # CLI Arguments & JSON Initialization Config Handling 
 with open('config.json', 'r') as f:
@@ -143,6 +147,34 @@ class Commands:
             alarm_time.remove(checked_alarms[i])
         logging.debug(f"alarm list: {alarm_time}")
         reply = reply.replace(f"/command alarm-remove {args}", "")
+        return reply
+
+    def zen(reply):
+        global zen_thread, zen_running, current_zen
+        args = reply.split("/command zen", 1)[1].strip()
+
+        if args == "play":
+            stop_music_playback()  # toggle off regular music first
+            if zen_thread is None or not zen_thread.is_alive():
+                zen_running.clear()
+                zen_thread = threading.Thread(
+                    target=zen_player,
+                    args=(zen_running,),
+                    daemon=True
+                )
+                zen_thread.start()
+                logging.debug("Zen player started")
+            else:
+                logging.debug("Zen player already running, ignoring play")
+        elif args == "stop":
+            stop_zen_playback()
+            logging.debug("Zen player stopped")
+
+        reply = reply.replace(f"/command zen {args}", "")
+        return reply
+
+    def alarm_check(reply):
+        reply = new_message(f"User is requesting for you to list all alarms, here's the list of alarm times, and their reasons: {alarm_time}")
         return reply
 
     def shutdown(reply):
@@ -279,13 +311,31 @@ def music_player():
             if len(song_cache) > 10:
                 old_id, old_title = song_cache.pop(0)
                 os.remove(f"{old_id[0][0]}.mkv")
-                logging.info(f"Removed {old_title[0][1]} from cache")
+                logging.debug(f"Removed {old_title[0][1]} from cache")
         except FileNotFoundError:
             pass
         music_queue.task_done()
 
-# Clears music queue and kills current sound if applicable, used for /command stop-music
-def stop_music():
+# Plays ambient zen tracks on a loop until stop_event is set; runs on its own daemon thread
+def zen_player(stop_event):
+    global current_zen
+    zen_queue = [f"{ran.randint(1,16)}.mp3" for _ in range(10)]
+    while not stop_event.is_set():
+        if len(zen_queue) < 10:
+            zen_queue.append(f"{ran.randint(1,16)}.mp3")
+        current_zen = playsound3.playsound(
+            f"./lofi-audio/{zen_queue.pop(0)}",
+            block=False
+        )
+        while current_zen.is_alive():
+            if stop_event.is_set():
+                break
+            t.sleep(0.1)
+        current_zen = None
+    logging.debug("Zen player thread exiting")
+
+# Stops only the regular music queue/playback
+def stop_music_playback():
     global current_sound
     if current_sound and current_sound.is_alive():
         current_sound.stop()
@@ -296,33 +346,70 @@ def stop_music():
         except:
             break
 
+# Stops only the zen/lofi player
+def stop_zen_playback():
+    global current_zen, zen_thread, zen_running
+    zen_running.set()
+    if current_zen and current_zen.is_alive():
+        current_zen.stop()
+    if zen_thread is not None and zen_thread.is_alive():
+        zen_thread.join(timeout=2)
+    zen_thread = None
+    current_zen = None
+
+# Stops both, used for /command stop-music
+def stop_music():
+    stop_music_playback()
+    stop_zen_playback()
+
 # Parses commands by Ollama and executes them to the respective class functions, returns the modified reply and music_id if applicable
 def command_parser(reply):
     global alarm_time
     music_item = None
     speech = reply
-        
+    had_command = False
+
     if "/command brightness up" in speech:
         speech = Commands.brightness_up(speech)
+        had_command = True
     if "/command brightness down" in speech:
         speech = Commands.brightness_down(speech)
+        had_command = True
     if "/command volume up" in speech:
         speech = Commands.volume_up(speech)
+        had_command = True
     if "/command volume down" in speech:
         speech = Commands.volume_down(speech)
+        had_command = True
     if "/command play" in speech:
-        speech, music_item = Commands.download_and_mkv(speech) # music_item is a tuple of (id, title) for the music player to use
+        speech, music_item = Commands.download_and_mkv(speech)
+        had_command = True
     if "/command stop-music" in speech:
         speech = Commands.music_quit(speech)
+        had_command = True
     if "/command write" in speech:
         speech = Commands.write(speech)
+        had_command = True
     if "/command alarm" in speech:
+        had_command = True
         if "/command alarm-remove" in speech:
             speech = Commands.remove_alarm(speech)
+        elif "/command alarm-queue" in speech:
+            speech = Commands.alarm_check(speech)
         else:
             speech, alarm_time = Commands.set_alarm(speech)
+    if "/command zen" in speech:
+        speech = Commands.zen(speech)
+        had_command = True
     if "/command quit" in speech:
         speech = Commands.shutdown(speech)
+        had_command = True
+
+    # Fallback: if a command fired but stripped the reply down to nothing,
+    # give the user some audio confirmation instead of dead silence
+    if had_command and not speech.strip():
+        speech = "Done."
+
     print(f"\nPluto: {speech.strip()}\n")
     return speech, music_item
 

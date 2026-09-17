@@ -13,19 +13,20 @@ Pluto has several commands, here's the list of them and their arguments:
 | `/command brightness` | `up/down` | Changes brightness by 25% | ✔️ |
 | `/command volume` | `up/down` | Changes volume by 25% | ✔️ |
 | `/command play` | `<song-title>` | Plays or queues a song | ✔️ |
-| `/command stop-music` | None | Stops music and clears the queue | ✔️ |
+| `/command stop-music` | None | Stops all music and clears their queues | ✔️ |
 | `/command write` | `<text>` | Generates text and copies it to the clipboard | ✔️ |
 | `/command alarm at` | `<HH:MM> <purpose>` | Sets an alarm for a specific time | ✔️ |
 | `/command alarm in` | `<minutes> <purpose>` | Sets an alarm after a duration | ✔️ |
 | `/command alarm-remove` | `<HH:MM>` | Removes an alarm | ✔️ |
+| `/command alarm-queue` | None | Reads out all alarms currently set by the user. | ✔️ |
 | `/command quit` | None | Exits Pluto | ✔️ |
+| `/command zen` | `<play>` | Plays lofi in the background. | ✔️ |
 ## Planned / In Progress Commands
 As this is a WIP, more and more commands will be added in the future, here's some of our concurrent ideas:
 | Command | Arguments | Description | Status |
 | --- | --- | --- | :---: |
 | `/command remove-music` | `<song-title>` | Removes the first instance of the specified song from the music queue. | 🔨 |
 | `/command music-queue` | None | Reads out the current music queue to the user. | 🔨 |
-| `/command alarm-queue` | None | Reads out all alarms currently set by the user. | 🔨 |
-| `/command zen` | `<play/end/minutes/time-in-%H:%M>` | Plays lofi in the background, ends lofi playback, starts lofi after N minutes, or plays lofi for a specified duration. | 🟡 |
+| `/command zen` | `<minutes/time-in-%H:%M>` | Plays lofi in the background, ends lofi playback, starts lofi after N minutes, or plays lofi for a specified duration. | 🟡 |
 | `/command alarm at` | `<time-in-%H:%M> <purpose-of-alarm> important` | Sets an important alarm for a specific clock time and plays an actual alarm sound when triggered. | 🟡 |
 | `/command alarm in` | `<minutes> <purpose-of-alarm> important` | Sets an important alarm N minutes from now and plays an actual alarm sound when triggered. | 🟡 |
