@@ -27,7 +27,7 @@ cd Horrible-Alexa
 py -m venv .alexa-venv
 .alexa-venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-ollama pull qwen2.5:7b
+ollama pull qwen3.5:9b
 ```
 
 > Unsure on how to navigate the powershell? Click [HERE](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-commands) to find out more.
@@ -52,7 +52,7 @@ cd Horrible-Alexa
 python3 -m venv .alexa-venv
 source .alexa-venv/bin/activate
 pip install -r requirements.txt
-ollama pull qwen2.5:7b
+ollama pull qwen3.5:9b
 ```
 
 Run the following command to save your cookie and Deno paths and to run the program:

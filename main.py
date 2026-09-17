@@ -225,7 +225,7 @@ def new_message(content):
     })
     conversation_history = conversation_history[-250:]   # keeps memory of the last 250 messages to remove old information
     response = chat(
-        model='qwen2.5:7b',
+        model='qwen3.5:9b',
         messages=[
             {
                 "role": "system",
@@ -233,8 +233,10 @@ def new_message(content):
             },
             *conversation_history
         ],
+        think=False,
         options={
-            "temperature": 0.1
+            "temperature": 0.1,
+            "num_ctx": 8192
         },
         keep_alive=-1
     )
@@ -423,6 +425,7 @@ def alarm_check():
                 reason_clause = f" about {alarm[1]}" if alarm[1] else ""
                 # Ensure that speech synthesis is not overlapping by using a loc
                 with speech_lock:
+                    playsound3.playsound("./audio/alarm.mp3", block=False)
                     sync.run(speak(new_message(f"The user's alarm is going off{reason_clause}, remind him and tell him the current time is {t.strftime('%I:%M %p')}.")))
                 alarm_time.remove(alarm)
 
@@ -491,24 +494,25 @@ if torch.cuda.is_available():
     device = "cuda"
 else:
     device = "cpu"
-playsound3.playsound("audio/startup-sound.mp3", block=False)
+playsound3.playsound("./audio/startup-sound.mp3", block=False)
 logging.info(f"Initializing Whisper with {device!r}")
 whisper_model = whisper.load_model("large-v3-turbo", device=device)
 logging.info("Whisper model fully loaded")
 # Start greeting
 logging.info("Sending Greeting to Ollama")
 greeting = new_message(f"The user just entered the room. Please greet them. The current time is {t.strftime('%I:%M %p')}.")
-print(f"\nPluto: {greeting.strip()}\n")
-sync.run(speak(greeting))
+speech, _ = command_parser(greeting)
+if speech:
+    sync.run(speak(speech))
 
 # Main Loop
 while True:
     print("\nHold esc to talk...\n")
     kb.wait("esc")
-    playsound3.playsound("audio/mic-recording.wav", block=False)
+    playsound3.playsound("./audio/mic-recording.wav", block=False)
     content = listen()
     if not content:
-        playsound3.playsound("audio/mic-no-detect.wav", block=False)
+        playsound3.playsound("./audio/mic-no-detect.wav", block=False)
         continue
     # Ensure that speech synthesis is not overlapping by using a lock
     with speech_lock:
