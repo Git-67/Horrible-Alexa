@@ -27,6 +27,6 @@ As this is a WIP, more and more commands will be added in the future, here's som
 | --- | --- | --- | :---: |
 | `/command remove-music` | `<song-title>` | Removes the first instance of the specified song from the music queue. | 🔨 |
 | `/command music-queue` | None | Reads out the current music queue to the user. | 🔨 |
-| `/command zen` | `<minutes/time-in-%H:%M>` | Plays lofi in the background, ends lofi playback, starts lofi after N minutes, or plays lofi for a specified duration. | 🟡 |
-| `/command alarm at` | `<time-in-%H:%M> <purpose-of-alarm> important` | Sets an important alarm for a specific clock time and plays an actual alarm sound when triggered. | 🟡 |
-| `/command alarm in` | `<minutes> <purpose-of-alarm> important` | Sets an important alarm N minutes from now and plays an actual alarm sound when triggered. | 🟡 |
+| `/command zen` | `<minutes/time-in-%H:%M>` | starts lofi for N minutes, or plays lofi for a specified duration. | 🟡 |
+| `/command alarm-important at` | `<time-in-%H:%M> <purpose-of-alarm>` | Sets an important alarm for a specific clock time and plays an actual alarm sound when triggered. | 🟡 |
+| `/command alarm-important in` | `<minutes> <purpose-of-alarm>` | Sets an important alarm N minutes from now and plays an actual alarm sound when triggered. | 🟡 |

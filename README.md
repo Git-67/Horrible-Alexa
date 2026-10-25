@@ -5,8 +5,10 @@ Quite literally what the name says, but homemade by a student. It can adjust you
 > Concurrently, it can only run in the **English** language, we are working on implementing more languages along the way.
 
 ## Versions
-- Python: 3.14 (recommended)
+- Python: 3.14.9 (recommended)
 - Ollama: v0.6.6+ (click [HERE](https://github.com/ollama/ollama/releases) for version info)
+
+> Please do only use Python version >= 3.14.9 as of 25 October 2026 repo commit, especially if you plan to fork this project and run this in a seperate server due to a [recent security vulnerabilty](https://blog.python.org/2026/10/python-3151-3149-31317/?utm_source=chatgpt.com).
 
 ## Create a Cookie File
 Install the **cookies.txt** Firefox extension, then open the extension while on YouTube Music. Press Copy on Current Site Cookies. Create `yummy_youtube_cookies.txt` locally in the project directory and paste your exported YouTube Music cookies into it. Do not commit this file to Git or share it publicly, as it contains authentication/session data.
